@@ -1,1 +1,34 @@
-
+#cloud-config
+autoinstall:
+    version: 1
+    early-commands:
+        # workaround to stop ssh for packer as it thinks it timed out
+        - sudo systemctl stop ssh
+    locale: en_US
+    keyboard:
+        layout: en
+        variant: us
+    packages: [open-vm-tools, openssh-server, python3-pip]
+    network:
+        network:
+            version: 2
+            ethernets:
+                ens192:
+                    dhcp4: true
+    identity:
+        hostname: ubuntu-server
+        username: ubuntu
+        password: "$6$rounds=4096$lYd6wG46xZT9m6G5$okMd0HqQNRPxS31bcRhh.vnQ2fj2VBNl9a3vV2yp.Sb2opjMt2DOWnWqd/rGcyRPu5Ll3wsqdxc0RRlY2mRx40"
+    ssh:
+        install-server: yes
+        allow-pw: yes
+        authorized-keys:
+            - ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAACAQCO//2qwK0f+wX6t5NRojGaVJoujY0HcuiFotTfgTxUGxDpUC1inxhQqJV4RwBfGYAYD9PzcgPp95aVAoMuQszTry4OEVcAa3cYJLHCc7+IlscUzSfk2semkO8YMRO7Ly0fOUCBjaoJP+8js8PfCQqWaXW3JNd5l+YCTjrOPDiqY071la9tQ5L4mbzNIsj7PaPemAeqcIJ4Q2bV2i5LyIrxLgZ+iyPJ0SjTScc3dQELTLpbwNaIGtUaxPN1GctkwZKa5clNbHWPC2ww5ZgPBUPNDuCPX5yk48b1QqQO8HQN4F8ABv+bbOdtCZbY6woAFwQBZaCRYE9HDdBeR4hFqHk+FcFxDH5L7rbtqX42l5AFxMM0DQbKijyZeJG7wIPJ4wguDq+jxe8Naq0lBVYO5GwODyJ6i1Cn2BiHJbIw4mG5nZNH6mUh7Gc7Dsag9jspmuiUp4Aqi1GYOEHPgCr5iC2f67E+aoR0IIT4ED3ulOG01v85igbrcMmt0fv4oHn2pX6TaIosXL0rSEiD+8gSSIv1TvgQX45RCLdKWrx3hKgwWXL+TgPMrBEnc5eiht6QCxvn2zvWF2O5hQepFwguwKxQOYaedOgjxYUKh/9ZRjDRRE78QFJ0XOIOOVtgT5OGJwdklYnxFm2U/YZjtJ0EmpOEdKCi0YdJAsjApwTwGleMxw== root@avi
+    storage:
+        layout:
+            name: lvm
+    user-data:
+        disable_root: false
+    late-commands:
+        - echo 'ubuntu ALL=(ALL) NOPASSWD:ALL' > /target/etc/sudoers.d/ubuntu
+        - curtin in-target --target=/target -- chmod 440 /etc/sudoers.d/ubuntu
